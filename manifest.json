@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Mercari Blocklist Backup",
+  "version": "0.1.0",
+  "description": "Backup and restore Mercari JP blocked users.",
+  "permissions": ["activeTab", "storage", "tabs"],
+  "host_permissions": ["https://jp.mercari.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Mercari Blocklist"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": ["https://jp.mercari.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
