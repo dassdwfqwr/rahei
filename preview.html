@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mercari Blocklist Preview</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          linear-gradient(120deg, rgba(255,255,255,.92), rgba(242,244,247,.72)),
+          radial-gradient(circle at 15% 20%, rgba(255,59,48,.13), transparent 28%),
+          radial-gradient(circle at 86% 72%, rgba(0,122,255,.12), transparent 30%);
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      }
+
+      .mock-page {
+        width: 390px;
+        min-height: 844px;
+        margin: 24px auto;
+        border: 1px solid rgba(60, 60, 67, 0.15);
+        border-radius: 34px;
+        background: #1f1f21;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 24px 60px rgba(0,0,0,.18);
+      }
+
+      .mock-header {
+        height: 88px;
+        background: #2b2b2d;
+        color: #fff;
+        display: flex;
+        align-items: end;
+        padding: 0 22px 18px;
+        gap: 14px;
+        font-size: 22px;
+        font-weight: 800;
+      }
+
+      .mock-content {
+        padding: 42px 22px;
+        color: #fff;
+      }
+
+      .avatar {
+        width: 86px;
+        height: 86px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #fff1b8, #ffd1dc);
+      }
+
+      .name {
+        margin-top: 18px;
+        font-size: 24px;
+        font-weight: 800;
+      }
+
+      .items {
+        margin-top: 34px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .item {
+        height: 150px;
+        border-radius: 16px;
+        background: #d9dde3;
+      }
+
+      #mbb-fab {
+        position: absolute;
+        right: 16px;
+        bottom: 110px;
+        z-index: 10;
+        width: 52px;
+        height: 52px;
+        border: 0;
+        border-radius: 18px;
+        background: rgba(255, 59, 48, 0.96);
+        color: #fff;
+        box-shadow: 0 14px 32px rgba(255, 59, 48, 0.28), 0 6px 18px rgba(0, 0, 0, 0.16);
+        font: 700 14px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      }
+
+      #mbb-panel {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        z-index: 20;
+        height: 75%;
+        border: 1px solid rgba(60, 60, 67, 0.16);
+        border-radius: 28px;
+        background: rgba(248, 248, 250, 0.86);
+        color: #1d1d1f;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+        overflow: hidden;
+        backdrop-filter: blur(24px) saturate(1.45);
+        -webkit-backdrop-filter: blur(24px) saturate(1.45);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .mbb-grabber {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 22px;
+      }
+
+      .mbb-grabber::before {
+        content: "";
+        width: 44px;
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(60, 60, 67, 0.22);
+      }
+
+      .mbb-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 2px 22px 16px;
+        border-bottom: 1px solid rgba(60, 60, 67, 0.12);
+      }
+
+      .mbb-title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 750;
+      }
+
+      .mbb-close {
+        width: 38px;
+        height: 38px;
+        border: 1px solid rgba(60, 60, 67, 0.14);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.72);
+        color: #1d1d1f;
+        font-size: 18px;
+      }
+
+      .mbb-body {
+        display: grid;
+        gap: 14px;
+        padding: 16px 22px 22px;
+      }
+
+      .mbb-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        overflow: hidden;
+        border: 1px solid rgba(60, 60, 67, 0.14);
+        border-radius: 18px;
+        background: rgba(60, 60, 67, 0.13);
+      }
+
+      .mbb-stat {
+        padding: 13px 16px;
+        background: rgba(255, 255, 255, 0.76);
+      }
+
+      .mbb-stat span {
+        display: block;
+        color: rgba(60, 60, 67, 0.72);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .mbb-stat strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 24px;
+        line-height: 1.08;
+      }
+
+      .mbb-state {
+        display: inline-flex;
+        width: fit-content;
+        min-height: 34px;
+        align-items: center;
+        padding: 6px 13px;
+        border-radius: 999px;
+        background: rgba(118, 118, 128, 0.12);
+        color: rgba(60, 60, 67, 0.72);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .mbb-primary-actions,
+      .mbb-actions,
+      .mbb-data-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .mbb-actions {
+        gap: 10px;
+      }
+
+      .mbb-actions .mbb-btn:first-child {
+        grid-column: 1 / -1;
+      }
+
+      .mbb-action-card {
+        min-height: 74px;
+        border: 0;
+        border-radius: 20px;
+        color: #fff;
+        text-align: left;
+        padding: 14px 15px;
+        font: inherit;
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+      }
+
+      .mbb-action-card strong,
+      .mbb-action-card span {
+        display: block;
+      }
+
+      .mbb-action-card strong {
+        font-size: 17px;
+        line-height: 1.2;
+        font-weight: 780;
+      }
+
+      .mbb-action-card span {
+        margin-top: 6px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .mbb-action-card.collect {
+        background: linear-gradient(135deg, #0a84ff, #55befc);
+      }
+
+      .mbb-action-card.block {
+        background: linear-gradient(135deg, #ff3b30, #ff6b5f);
+      }
+
+      .mbb-group {
+        overflow: hidden;
+        border: 1px solid rgba(60, 60, 67, 0.12);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.66);
+      }
+
+      .mbb-group .mbb-btn {
+        width: 100%;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .mbb-group .mbb-btn + .mbb-btn {
+        border-top: 1px solid rgba(60, 60, 67, 0.1);
+      }
+
+      .mbb-btn {
+        min-height: 42px;
+        border: 1px solid rgba(60, 60, 67, 0.14);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.74);
+        color: #1d1d1f;
+        font: inherit;
+        font-weight: 720;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+      }
+
+      .mbb-btn.strong {
+        min-height: 58px;
+        font-size: 16px;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+      }
+
+      .mbb-btn.primary {
+        border-color: rgba(10, 132, 255, 0.92);
+        background: #0a84ff;
+        color: #fff;
+      }
+
+      .mbb-btn.danger {
+        border-color: rgba(28, 28, 30, 0.92);
+        background: #1c1c1e;
+        color: #fff;
+      }
+
+      .mbb-btn.secondary {
+        border-color: rgba(10, 132, 255, 0.22);
+        background: rgba(10, 132, 255, 0.08);
+        color: #006edb;
+      }
+
+      .mbb-section-label {
+        color: rgba(60, 60, 67, 0.68);
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .mbb-view {
+        display: none;
+      }
+
+      .mbb-view.open {
+        display: grid;
+        gap: 14px;
+      }
+
+      .mbb-local-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .mbb-back {
+        width: 38px;
+        min-height: 34px;
+        border-radius: 12px;
+        padding: 0;
+      }
+
+      .mbb-local-title {
+        display: grid;
+        gap: 2px;
+      }
+
+      .mbb-local-title strong {
+        font-size: 17px;
+      }
+
+      .mbb-local-title span {
+        color: rgba(60, 60, 67, 0.62);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .mbb-local-list {
+        overflow: hidden;
+        border: 1px solid rgba(60, 60, 67, 0.12);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.66);
+      }
+
+      .mbb-local-row {
+        display: grid;
+        grid-template-columns: 34px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        min-height: 48px;
+        padding: 9px 12px;
+      }
+
+      .mbb-local-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #fff1b8, #ffd1dc);
+      }
+
+      .mbb-local-name {
+        font-size: 13px;
+        font-weight: 720;
+      }
+
+      .mbb-local-id {
+        color: rgba(60, 60, 67, 0.62);
+        font-size: 11px;
+      }
+
+      .mbb-local-status {
+        border-radius: 999px;
+        padding: 3px 8px;
+        background: rgba(118, 118, 128, 0.12);
+        color: rgba(60, 60, 67, 0.68);
+        font-size: 11px;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mock-page">
+      <div class="mock-header">mercari</div>
+      <div class="mock-content">
+        <div class="avatar"></div>
+        <div class="name">隣の佐藤さん</div>
+        <div class="items">
+          <div class="item"></div>
+          <div class="item"></div>
+          <div class="item"></div>
+          <div class="item"></div>
+        </div>
+      </div>
+      <button id="mbb-fab">拉黑</button>
+      <section id="mbb-panel">
+        <div class="mbb-grabber"></div>
+        <div class="mbb-head">
+          <h2 class="mbb-title">Mercari 拉黑工具</h2>
+          <button class="mbb-close">×</button>
+        </div>
+        <div class="mbb-body">
+          <div class="mbb-view" data-view="main">
+            <div class="mbb-stats">
+              <div class="mbb-stat"><span>名单</span><strong>1</strong></div>
+              <div class="mbb-stat"><span>完成</span><strong>1</strong></div>
+              <div class="mbb-stat"><span>失败</span><strong>0</strong></div>
+            </div>
+            <div class="mbb-state">空闲，当前页：拉黑列表</div>
+            <div class="mbb-primary-actions">
+              <button class="mbb-action-card collect"><strong>一键采集</strong><span>同步已拉黑名单</span></button>
+              <button class="mbb-action-card block"><strong>一键拉黑</strong><span>按缓存自动处理</span></button>
+            </div>
+            <div class="mbb-section-label">手动步骤</div>
+            <div class="mbb-actions mbb-group">
+              <button class="mbb-btn">跳转到拉黑界面</button>
+              <button class="mbb-btn secondary">批量拉黑</button>
+              <button class="mbb-btn">采集拉黑数据</button>
+            </div>
+            <button class="mbb-btn">本地名单</button>
+            <button class="mbb-btn">数据管理：导入 / 导出</button>
+          </div>
+          <div class="mbb-view open" data-view="local">
+            <div class="mbb-local-head">
+              <button class="mbb-btn mbb-back">‹</button>
+              <div class="mbb-local-title">
+                <strong>本地名单</strong>
+                <span>1 个缓存用户</span>
+              </div>
+            </div>
+            <div class="mbb-local-list">
+              <div class="mbb-local-row">
+                <div class="mbb-local-avatar"></div>
+                <div>
+                  <div class="mbb-local-name">隣の佐藤さん</div>
+                  <div class="mbb-local-id">595874810</div>
+                </div>
+                <span class="mbb-local-status">已存在</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
