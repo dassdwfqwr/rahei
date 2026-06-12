@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mercari Blocklist</title>
+    <link rel="stylesheet" href="ui.css">
+  </head>
+  <body>
+    <main class="popup stack">
+      <header class="stack">
+        <h1>Mercari Blocklist</h1>
+        <div class="muted" id="queueState">读取中</div>
+      </header>
+
+      <section class="stats">
+        <div class="stat">
+          <span class="muted">名单</span>
+          <strong id="totalCount">0</strong>
+        </div>
+        <div class="stat">
+          <span class="muted">成功</span>
+          <strong id="doneCount">0</strong>
+        </div>
+        <div class="stat">
+          <span class="muted">失败</span>
+          <strong id="failedCount">0</strong>
+        </div>
+      </section>
+
+      <section class="row">
+        <button id="scanButton" class="primary" type="button">扫描当前页</button>
+        <button id="startButton" type="button">开始恢复</button>
+        <button id="pauseButton" type="button">暂停</button>
+        <a class="button" href="options.html" target="_blank">管理</a>
+      </section>
+
+      <div id="message" class="message"></div>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
