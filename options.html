@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mercari Blocklist Manager</title>
+    <link rel="stylesheet" href="ui.css">
+  </head>
+  <body>
+    <main class="page stack">
+      <header class="stack">
+        <h1>Mercari Blocklist Manager</h1>
+        <p class="muted">备份使用增量合并，恢复使用单标签页串行队列。</p>
+      </header>
+
+      <section class="panel stack">
+        <h2>状态</h2>
+        <div class="stats">
+          <div class="stat"><span class="muted">名单</span><strong id="totalCount">0</strong></div>
+          <div class="stat"><span class="muted">待处理</span><strong id="pendingCount">0</strong></div>
+          <div class="stat"><span class="muted">进行中</span><strong id="processingCount">0</strong></div>
+          <div class="stat"><span class="muted">已拉黑</span><strong id="blockedCount">0</strong></div>
+          <div class="stat"><span class="muted">已存在</span><strong id="alreadyCount">0</strong></div>
+          <div class="stat"><span class="muted">失败</span><strong id="failedCount">0</strong></div>
+        </div>
+        <div id="queueState" class="muted"></div>
+      </section>
+
+      <section class="panel stack">
+        <h2>操作</h2>
+        <div class="row">
+          <button id="scanButton" class="primary" type="button">扫描当前 blocked users 页</button>
+          <button id="startButton" type="button">开始恢复待处理</button>
+          <button id="retryFailedButton" type="button">重试失败项</button>
+          <button id="pauseButton" type="button">暂停恢复</button>
+          <button id="resetButton" type="button">重置未完成任务</button>
+        </div>
+        <div class="row">
+          <button id="exportButton" type="button">导出 JSON</button>
+          <label class="button">
+            导入 JSON
+            <input id="importInput" type="file" accept="application/json,.json" hidden>
+          </label>
+        </div>
+        <div id="message" class="message"></div>
+      </section>
+
+      <section class="panel stack">
+        <h2>名单</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>头像</th>
+                <th>用户</th>
+                <th>ID</th>
+                <th>状态</th>
+                <th>错误</th>
+              </tr>
+            </thead>
+            <tbody id="userRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>
